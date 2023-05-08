@@ -5,10 +5,10 @@ import { RouterLink } from 'vue-router';
 import axios from 'axios';
 
 export default {
-    notFound : false,
     name : 'edit',
     data(){
       return {
+         notFound : false,
         id : this.$route.params.id,
         imgURL : null,
         model : {
@@ -29,7 +29,6 @@ export default {
       }
     },
     mounted(){
-      //console.log("params : " + this.$route.params.id);
       this.getStudent()
     },
     methods: {
@@ -38,23 +37,10 @@ export default {
             axios.get("http://localhost:8000/api/student/"+this.id)
             .then(result => {
               console.log(result);
-              //this.student = result.data
-              const { name, course, email, phone, image } = result.data
-              this.model.student.name = name
-              this.model.student.email = email
-              this.model.student.course = course
-              this.model.student.phone = phone
-              this.model.student.image = image
-
-              /*this.model.student.name = result.data.name
-              this.model.student.email = result.data.email
-              this.model.student.course = result.data.course
-              this.model.student.phone = result.data.phone
-              this.model.student.image = result.data.image*/
+              this.model.student = result.data
               
             })
             .catch(error => {
-              //console.log(error);
                if(error.response.status == 404){
                   this.notFound = true
                   console.log(this.notFound);
@@ -73,6 +59,8 @@ export default {
 
             const formData = new FormData()
 
+            formData.append('_method', 'PUT');
+
             formData.append('name', this.model.student.name)
 
             formData.append('course', this.model.student.course)
@@ -81,12 +69,10 @@ export default {
 
             formData.append('phone', this.model.student.phone)
 
-            //formData.append('image', this.model.student.image)
+            formData.append('image', this.model.student.image)
 
-            axios.put("http://localhost:8000/api/student/"+this.id, this.model.student)
-            //axios.put("http://localhost:8000/api/student/"+this.id, formData, {})
+            axios.post("http://localhost:8000/api/student/"+this.id, formData, {})
                   .then(res => {
-                     //console.log(res);
                      this.$router.push('/students');
                   }).catch(err => {
                      console.log(err.response);

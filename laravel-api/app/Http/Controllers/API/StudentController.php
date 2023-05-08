@@ -53,7 +53,6 @@ class StudentController extends Controller
                 "course" => 'required|string|max:20',
                 "email" => 'required|email|max:30',
                 "phone" => 'required'
-                //"phone" => 'required|digits:20'
             ],
             [
                 "name.required" => 'Le nom est obligatoire',
@@ -74,28 +73,11 @@ class StudentController extends Controller
             return response()->json(
                 [
                     "status" => false,
-                    "message" => $validator->messages() //$validator->errors()
+                    "message" => $validator->messages()
                 ],
                 422
             );
         } else {
-
-            //$student = Student::create($body);
-
-            /*Student::create([
-                "name" => $request->name,
-                "course" => $request->course,
-                "email" => $request->email,
-                "phone" => $request->phone
-            ]);*/
-
-            /*$student = new Student;
-            $student->name = $request->name; || $body['name']
-            $student->course = $request->course; || $body['course']
-            $student->email = $request->email; || $body['email']
-            $student->phone = $request->phone; || $body['phone']
-
-            $result = $student->save();*/
 
             $student->name = $request->name;
             $student->course = $request->course;
@@ -151,7 +133,6 @@ class StudentController extends Controller
                 "course" => 'required|string|max:20',
                 "email" => 'required|email|max:30',
                 "phone" => 'required'
-                //"phone" => 'required|digits:20'
             ],
             [
                 "name.required" => 'Le nom est obligatoire',
@@ -172,7 +153,7 @@ class StudentController extends Controller
             return response()->json(
                 [
                     "status" => false,
-                    "message" => $validator->messages() //$validator->errors()
+                    "message" => $validator->messages()
                 ],
                 422
             );
@@ -181,12 +162,34 @@ class StudentController extends Controller
             $student = Student::find($id);
 
             if ($student) {
+                $student->name = $request->name;
+                $student->course = $request->course;
+                $student->email = $request->email;
+                $student->phone = $request->phone;
 
-                $student->update($request->all());
+                if ($request->hasFile('image')) {
+
+                    if($student->image != "img_avatar.png"){
+                        $path = '../../vue-project/public/uploads/'. $student->image;
+                        if (\File::exists($path)) {
+                            \File::delete($path);
+                        }
+                    }
+
+                    $file = $request->file('image');
+                    $extension = $file->getClientOriginalExtension();
+                    $fileName = time() . '.' . $extension;
+                    $file->move('../../vue-project/public/uploads/', $fileName);
+                    $student->image = $fileName;
+
+                }
+
+                $student->update();
 
                 return response()->json(
                     [
                         "status" => true,
+                        "students" => $body,
                         "message" => "Etudiant modifié avec succès !"
                     ],
                     200

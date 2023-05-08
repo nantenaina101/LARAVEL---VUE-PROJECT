@@ -6,10 +6,11 @@ import axios from 'axios';
 
 export default {
     name : 'students',
-    successMessage : "",
-    isSuccessMessage : false,
     data(){
       return {
+        loading : true,
+        successMessage : "",
+        isSuccessMessage : false,
         students : []
       }
     },
@@ -20,8 +21,8 @@ export default {
          getStudents(){
             axios.get("http://localhost:8000/api/students")
             .then(result => {
-              //console.log(result);
               this.students = result.data
+              this.loading = false
             })
             .catch(error => {
               console.log(error);
@@ -33,6 +34,7 @@ export default {
             .then(result => {
               console.log(result);
               this.successMessage = result.data.message
+              this.isSuccessMessage = true
               //this.getStudents();
               this.students = this.students.filter(student => student.id != id)
 
@@ -58,11 +60,11 @@ export default {
             </h2>
          </div>
 
-          <div v-if="this.successMessage">
+          <div v-if="this.isSuccessMessage">
               <h6 class="text-success">{{ this.successMessage }}</h6>
           </div>
         
-         <table class="table table-striped table-bordered table-hover">
+          <table v-if="!this.loading" class="table table-striped table-bordered table-hover">
                <thead>
                   <tr>
                      <th>#</th>
@@ -96,6 +98,7 @@ export default {
                   </tr>
                </tbody>
          </table>
+         <div v-else>Chargement....</div>
       </div>
       <div class="col-2"></div>
       
