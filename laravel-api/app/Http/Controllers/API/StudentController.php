@@ -41,7 +41,7 @@ class StudentController extends Controller
     /*
         Add one student
      */
-    public function save(Request $request)
+    public function save(Request $request, Student $student)
     {
 
         $body = $request->all();
@@ -80,7 +80,7 @@ class StudentController extends Controller
             );
         } else {
 
-            $student = Student::create($body);
+            //$student = Student::create($body);
 
             /*Student::create([
                 "name" => $request->name,
@@ -97,12 +97,29 @@ class StudentController extends Controller
 
             $result = $student->save();*/
 
-            if ($student) {
+            $student->name = $request->name;
+            $student->course = $request->course;
+            $student->email = $request->email;
+    		$student->phone = $request->phone;
+
+            if ($request->hasFile('image')) {
+    			$file = $request->file('image');
+    			$extension = $file->getClientOriginalExtension();
+    			$fileName = time() . '.' . $extension;
+    			$file->move('../../vue-project/public/uploads/', $fileName);
+    			$student->image = $fileName;
+    		}else{
+                $student->image = "img_avatar.png";
+            }
+
+            $result = $student->save();
+
+            if ($result) {
                 return response()->json(
                     [
                         "status" => true,
                         "message" => "Etudiant enregistré avec succès !",
-                        "student" => $student
+                        "result" => $result
                     ],
                     200
                 );
@@ -111,7 +128,7 @@ class StudentController extends Controller
                     [
                         "status" => false,
                         "message" => "Quelque chose ne va pas !",
-                        "student" => $student
+                        "result" => $result
                     ],
                     500
                 );
@@ -195,9 +212,20 @@ class StudentController extends Controller
         $result = null;
         $status = 500;
         if ($student) {
+
+            if($student->image != "img_avatar.png"){
+                $path = '../../vue-project/public/uploads/'. $student->image;
+                if (\File::exists($path)) {
+                    \File::delete($path);
+                }
+            }
+
             $student->delete();
+            
             $result = "Etudiant supprimé avec succès !";
+
             $status = 200;
+
         } else {
             $result = "Aucun étudiant correspondant à cet identifiant";
             $status = 404;

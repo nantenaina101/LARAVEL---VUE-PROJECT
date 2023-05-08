@@ -4,21 +4,18 @@ import { RouterLink } from 'vue-router';
 
 import axios from 'axios';
 
-/*import axios from 'axios'
-export default axios.create({
-    baseURL: "http://127.0.0.1:8000/api"
-})*/
-
 export default {
     name : 'create',
     data(){
       return {
+        imgURL : null,
         model : {
                student : {
                      name : "", 
                      course: "", 
                      email: "", 
-                     phone: ""
+                     phone: "",
+                     image : null
                }
             },
          errors : {
@@ -37,10 +34,24 @@ export default {
             this.errors = {
                name : "", 
                course: "", 
-               email: "", 
+               email: "",
                phone: ""
             }
-            axios.post("http://localhost:8000/api/student", this.model.student)
+
+            const formData = new FormData()
+
+            formData.append('name', this.model.student.name)
+
+            formData.append('course', this.model.student.course)
+
+            formData.append('email', this.model.student.email)
+
+            formData.append('phone', this.model.student.phone)
+
+            formData.append('image', this.model.student.image)
+
+            //axios.post("http://localhost:8000/api/student", this.model.student)
+            axios.post("http://localhost:8000/api/student", formData, {})
                   .then(res => {
                      console.log(res);
                      this.$router.push('/students');
@@ -59,6 +70,10 @@ export default {
                         this.errors.phone = err.response.data.message.phone[0]
                      }
                   })
+         },
+         handleChange(e){
+            this.model.student.image = e.target.files[0]
+            this.imgURL = URL.createObjectURL(e.target.files[0])
          }
       },
   }
@@ -102,14 +117,24 @@ export default {
                   </div>
                   <span class="text-danger">{{ this.errors.phone }}</span>
                </div>
+
                <div class="col-lg-6 col-md-6 col-sm-6 mb-3">
-                  <button type="button" @click = "this.saveStudent()" class="btn btn-primary">Ajouter</button>
-               </div>
-               <div class="col-lg-6 col-md-6 col-sm-6 mb-3">
-                  <div class="mt-3">
-                     
+                  <div class="form-group">
+                     <label for="phone">Photo</label>
+                     <input type="file" name="photo" class="form-control" id="photo" accept="image/*" @change="this.handleChange($event)" />
                   </div>
                </div>
+
+               <div v-if="this.imgURL" className="col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <div className="mt-3">
+                     <img :src="this.imgURL" width='100' height='100' />
+                  </div>
+               </div>
+
+               <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                  <button type="button" @click = "this.saveStudent()" class="btn btn-primary">Ajouter</button>
+               </div>
+              
             </div>
             
          </form>

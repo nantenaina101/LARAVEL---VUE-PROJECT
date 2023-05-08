@@ -70,6 +70,7 @@ export default {
                      <th>Cours</th>
                      <th>Email</th>
                      <th>Téléphone</th>
+                     <th>Photo</th>
                      <th>Actions</th>
                   </tr>
                </thead>
@@ -81,6 +82,7 @@ export default {
                         <td class="etudiant-cours">{{ item.course }}</td>
                         <td class="etudiant-email">{{ item.email }}</td>
                         <td class="etudiant-phone">{{ item.phone }}</td>
+                        <td style="text-align:center"><img :src="'/uploads/'+item.image" width='50' class='img-thumbnail' /></td>
                         <td class="actions text-center">
                           <RouterLink :to="{path:'/edit/'+item.id}" class="btn btn-primary">Modifier</RouterLink>
                            &nbsp;&nbsp;
@@ -90,7 +92,7 @@ export default {
                </tbody>
                <tbody v-else>
                   <tr class="text-center">
-                    <td colspan="6">Aucun enregistrement</td>
+                    <td colspan="7">Aucun enregistrement</td>
                   </tr>
                </tbody>
          </table>
